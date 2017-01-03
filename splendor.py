@@ -11,23 +11,13 @@ class DevCard(SplendorCard):
     def __init__(self, prestige, cost, bonus):
         super().__init__(prestige, cost, bonus)
 
-    def buyable(self, mony, bonus, gold):
-        for i in len(super().cost):
-            if super().cost[i] is not 0:
-                if mony[i] + bonus[i] + gold < super().cost[i]:
-                    return False
-        return True
+    
 
 class NobleCard(SplendorCard):
     def __init__(self, cost):
         super().__init__(3, cost, None)
 
-    def willVisit(self, capital):
-        for i in len(super().cost):
-            if super().cost[i] is not 0:
-                if capital[i] < super().cost[i]:
-                    return False
-        return True
+    
 
 class SplendorDeck(Stack):
     def __init__(self, cards):
@@ -36,6 +26,7 @@ class SplendorDeck(Stack):
         super().__init__()
         while cards:
             super().push(cards.pop())
+        self.shuffle()
 
     def shuffle(self):
         cards = []
@@ -52,8 +43,62 @@ class SPlayer:
     def __init__(self, name):
         self.name = name
         self.hand = []
-        self.mony = [0 for i in range(6)]
-        self.bonus = [0 for i in range(6)]
+        self.mony = GemSet()
+        self.bonus = GemSet()
+        self.prestige = 0
+
+class GemSet:
+    """
+    Arrangement:
+    D S E R O
+    """
+    def __init__(self, d=0, s=0, e=0, r=0, o=0):
+        self.mony = [d,s,e,r,o]
+        self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
+
+    def __gt__(self, other):
+        """
+        For comparing between GemSets.
+        """
+        for i in range(5):
+            if self.mony[i] < other.mony[i]:
+                return False
+        return True
+
+    def __add__(self, other):
+        """
+        For adding GemSets together.
+        """
+        a = self.mony[0]+other.mony[0]
+        b = self.mony[1]+other.mony[1]
+        c = self.mony[2]+other.mony[2]
+        d = self.mony[3]+other.mony[3]
+        e = self.mony[4]+other.mony[4]
+        return GemSet(a,b,c,d,e)
+
+    def __sub__(self, other):
+        """
+        To determine the min-zero difference between two GemSets.
+        Example:
+        (1, 2, 3, 4, 5) - (5, 4, 3, 2, 1) = 0 + 0 + 0 + 2 + 4 = 6
+        (5, 4, 3, 2, 1) - (0, 0, 0, 0, 0) = 5 + 4 + 3 + 2 + 1 = 15
+        """
+        ans = 0
+        for i in range(5):
+            ans += max(0, self.mony[i]-other.mony[i])
+        return ans
+
+    def addGem(self, amt, gem):
+        i = self.trans[gem.lower()]
+        self.mony[i] += max(0, amt)
+
+    def removeGem(self, amt, gem):
+        i = self.trans[gem.lower()]
+        self.mony[i] = max(0, self.mony[i]-amt)
+
+    def getAmt(self, gem):
+        i = self.trans[gem.lower()]
+        return self.mony[i]
 
 class SplendorGame:
     def __init__(self, numPlayers):
@@ -61,20 +106,48 @@ class SplendorGame:
         tier2 = []
         tier3 = []
         nobility = []
-        setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
+        self.setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
+        self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
 
-        self.rules = setup[numPlayers]
+        self.rules = self.setup[numPlayers]
         self.numPlayers = numPlayers
-        self.gemPool = [self.rules[0] for i in range(6)]
-        self.deck1 = SplendorDeck(tier1)
-        self.deck2 = SplendorDeck(tier2)
-        self.deck3 = SplendorDeck(tier3)
-        self.ndeck = SplendorDeck(nobility)
-        self.row1 = [self.deck1.deal() for i in range(3)]
-        self.row2 = [self.deck2.deal() for i in range(3)]
-        self.row3 = [self.deck3.deal() for i in range(3)]
-        self.nrow = [self.ndeck.deal() for i in range(3)]
+        self.gemPool = GemSet(self.rules[0], self.rules[0], self.rules[0], self.rules[0], self.rules[0])
+        self.gold = self.rules[0]
+        self.decks = [SplendorDeck(nobility), SplendorDeck(tier3), SplendorDeck(tier2), SplendorDeck(tier1)]
+        self.rows = [[self.decks[0].deal() for i in range(self.rules[2])], [self.decks[1].deal() for i in range(3)], [self.decks[2].deal() for i in range(3)], [self.decks[3].deal() for i in range(3)]]
         self.players = [SPlayer(input("Player"+str(i+1)+"'s name: ")) for i in range(self.numPlayers)]
+        self.gameOver = False
+        self.current = 0
+        self.actionTaken = False
+
+    def hasEnded(self):
+        return self.gameOver
+
+    def endTurn(self):
+        #end of turn stuff happens here
+        pass
+
+    def take3Diff(self, a, b, c):
+        a = a.lower()
+        b = b.lower()
+        c = c.lower()
+        if a == b or a == c or b == c:
+            print("Must be 3 different gems!")
+        else:
+            p = self.players[self.current]
+            p.addGem(1, a)
+            p.addGem(1, b)
+            p.addGem(1, c)
+            self.endTurn()
+
+    def take2Same(self, a):
+        if self.gemPool.getAmt(a) >= 4:
+            p = self.players[self.current]
+            p.addGem(2, a)
+            self.endTurn()
+
+
+
 
 
 game = SplendorGame(4)
