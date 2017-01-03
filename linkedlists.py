@@ -277,7 +277,8 @@ class SLList:
     def head(self):
         return self.head
 
-    def insert
+    def insert(self):
+        pass
 
 class Stack(SLList):
     def __init__(self):
