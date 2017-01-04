@@ -187,8 +187,5 @@ class SplendorGame:
         p = self.players[self.current]
         pass
 
-
-
-
-
-game = SplendorGame(4)
+playerNum = int(input("How many players [2-4]?: "))
+game = SplendorGame(playerNum)
