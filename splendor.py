@@ -149,6 +149,10 @@ class SplendorGame:
         self.gameOver = False
         self.current = 0
         self.actionTaken = False
+        self.processTurn()
+
+    def processTurn(self):
+        print("What will you do?")
 
     def hasEnded(self):
         return self.gameOver
