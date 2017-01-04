@@ -11,13 +11,15 @@ class DevCard(SplendorCard):
     def __init__(self, prestige, cost, bonus):
         super().__init__(prestige, cost, bonus)
 
-    
+    def canBuy(self, mony, bonus, gold):
+        return (mony+bonus)-self.cost <= gold
 
 class NobleCard(SplendorCard):
     def __init__(self, cost):
         super().__init__(3, cost, None)
 
-    
+    def willVisit(self, bonus):
+        return bonus > self.cost
 
 class SplendorDeck(Stack):
     def __init__(self, cards):
@@ -43,9 +45,29 @@ class SPlayer:
     def __init__(self, name):
         self.name = name
         self.hand = []
+        self.devs = {'d':[], 's':[], 'e':[], 'r':[], 'o':[]}
         self.mony = GemSet()
         self.bonus = GemSet()
+        self.gold = 0
         self.prestige = 0
+
+    def addGem(self, amt, gem):
+        self.mony.addGem(amt, gem)
+
+    def removeGem(self, amt, gem):
+        self.mony.removeGem(amt, gem)
+
+    def addGold(self):
+        self.gold += 1
+
+    def removeGold(self):
+        self.gold = max(0, self.gold - 1)
+
+    def addToHand(self, card):
+        self.hand.append(card)
+
+    def getHandSize(self):
+        return len(self.hand)
 
 class GemSet:
     """
@@ -100,6 +122,13 @@ class GemSet:
         i = self.trans[gem.lower()]
         return self.mony[i]
 
+    def getTotal(self):
+        ans = 0
+        for i in self.mony:
+            ans += i
+        return ans
+
+
 class SplendorGame:
     def __init__(self, numPlayers):
         tier1 = []
@@ -108,6 +137,7 @@ class SplendorGame:
         nobility = []
         self.setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
         self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
+
 
         self.rules = self.setup[numPlayers]
         self.numPlayers = numPlayers
@@ -125,6 +155,7 @@ class SplendorGame:
 
     def endTurn(self):
         #end of turn stuff happens here
+        #
         pass
 
     def take3Diff(self, a, b, c):
@@ -145,6 +176,16 @@ class SplendorGame:
             p = self.players[self.current]
             p.addGem(2, a)
             self.endTurn()
+
+    def reserveCard(self, row, col):
+        p = self.players[self.current]
+        if p.getHandSize < 3:
+            p.addToHand(self.rows[row].pop(col))
+            self.endTurn()
+
+    def buyCard(self, isOnBoard):
+        p = self.players[self.current]
+        pass
 
 
 
