@@ -285,7 +285,7 @@ class Stack(SLList):
         super().__init__()
 
     def push(self, data):
-        super().insertAtHead(Node(data))
+        super().insertAtHead(SLLNode(data))
 
     def pop(self):
         data = super().head()

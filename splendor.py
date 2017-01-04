@@ -192,17 +192,17 @@ class GemSet:
     def __str__(self):
         s = ""
         for i in range(5):
-            s += "{0}{1}, ".format(self.mony[i], self.trans.keys()[i].upper())
+            s += "{0}{1}, ".format(self.mony[i], list(self.trans.keys())[i].upper())
 
         return s[:-2]
 
     
 class SplendorGame:
     def __init__(self, numPlayers):
-        tier1 = []
-        tier2 = []
-        tier3 = []
-        nobility = []
+        tier1 = [DevCard(1, GemSet(5,4,5,2,1), 'd') for i in range(50)]
+        tier2 = [DevCard(1, GemSet(1,4,3,2,1), 'e') for i in range(50)]
+        tier3 = [DevCard(1, GemSet(5,4,3,2,3), 'r') for i in range(50)]
+        nobility = [NobleCard(GemSet(1,2,3,4,5)) for i in range(50)]
         self.setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
         self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
         
@@ -212,13 +212,14 @@ class SplendorGame:
         self.gemPool = GemSet(self.rules[0], self.rules[0], self.rules[0], self.rules[0], self.rules[0])
         self.gold = 5
         self.decks = [SplendorDeck(nobility), SplendorDeck(tier3), SplendorDeck(tier2), SplendorDeck(tier1)]
-        self.rows = [[self.decks[0].deal() for i in range(self.rules[2])], [self.decks[1].deal() for i in range(3)], [self.decks[2].deal() for i in range(3)], [self.decks[3].deal() for i in range(3)]]
+        self.rows = [[self.decks[0].deal() for i in range(self.rules[2])], [self.decks[1].deal() for i in range(4)], [self.decks[2].deal() for i in range(4)], [self.decks[3].deal() for i in range(4)]]
         self.players = [SPlayer(input("Player"+str(i+1)+"'s name: ")) for i in range(self.numPlayers)]
         self.gameOver = False
         self.current = 0
         self.actionTaken = False
     
-    def displayUI(self):
+    def processTurn(self):
+        p = self.players[self.current]
         #nobles
         print("▓▓▓▓▓▓▓ " * (self.numPlayers + 1))
         toprint = ""
@@ -242,11 +243,11 @@ class SplendorGame:
             print(toprint)
             toprint = "░░░{0}░░░ ".format(4-i)
             for card in self.rows[i]:
-                toprint += "░ {0} {1} ░ ".format(noble.cost.getAmt('d'), noble.cost.getAmt('s'))
+                toprint += "░ {0} {1} ░ ".format(card.cost.getAmt('d'), card.cost.getAmt('s'))
             print(toprint)
             toprint = "░░░░░░░ "
             for card in self.rows[i]:
-                toprint += "░{0} {1} {2}░ ".format(noble.cost.getAmt('e'), noble.cost.getAmt('r'), noble.cost.getAmt('o'))
+                toprint += "░{0} {1} {2}░ ".format(card.cost.getAmt('e'), card.cost.getAmt('r'), card.cost.getAmt('o'))
             print(toprint)
             print("░░░░░░░ " * 5)
 
@@ -255,15 +256,50 @@ class SplendorGame:
 
         print("-" * 40)
 
-        #playerinfo
-        print("YOU HAVE:  {0} Prestige Points".format(self.current.prestige))
-        print("{0}, {1}G tokens".format(self.current.mony, self.current.gold).rjust(40))
-        print("{0} in bonuses".format(self.current.bonus).rjust(40))
+        while not self.actionTaken:
+            #playerinfo
+            print("CURRENT PLAYER: " + p.name)
+            print("YOU HAVE:  {0} Prestige Points".format(p.prestige))
+            print("{0}, {1}G tokens".format(p.mony, p.gold).rjust(40))
+            print("{0} in bonuses".format(p.bonus).rjust(40))
 
-        #commands
-        print("ENTER:      [1] to take tokens")
-        print("            [2] to reserve a card")
-        print("            [3] to purchase a card")
+            #commands
+            print("ENTER:      [1] to take tokens")
+            print("            [2] to reserve a card")
+            print("            [3] to purchase a card")
+            com = int(input())
+            if com > 3 or com < 0:
+                print("Invalid.")
+                continue
+            if com == 1:
+                print("You have chosen to take TOKENS.")
+                print("ENTER:      [1] take 3 different tokens")
+                print("            [2] take 2 same tokens")
+                order = int(input())
+                if order == 1:
+                    gems = input("Please input 3 gems to take from [D, S, E, R, O]: ").split()
+                    if len(gems) == 3 and not ('g' in gems or 'G' in gems):
+                        self.take3Diff(gems[0], gems[1], gems[2])
+                else:
+                    gem = input("Please input gem to take (there must be 4 of that gem available) [D, S, E, R, O]: ")
+                    self.take2Same(gem)
+            elif com == 2:
+                print("You have chosen to RESERVE.")
+                row = 4 - int(input("What tier of card do you wish to reserve? [1-3]: "))
+                col = int(input("Which card will you reserve? [numbered 1-4 from the left]: ")) - 1
+                self.reserveCard(row, col)
+            else:
+                print("You have chosen to BUY.")
+                print("ENTER:      [1] buy card on board")
+                print("            [2] buy card from hand")
+                econ = int(input())
+                if econ == 1:
+                    row = 4 - int(input("What tier of card do you wish to buy? [1-3]: "))
+                    col = int(input("Which card will you buy? [numbered 1-4 from the left]: ")) - 1
+                    self.buyCardFromBoard(row, col)
+                elif econ == 2:
+                    col = int(input("Which card will you reserve? [numbered 1 onwards from the left]: ")) - 1
+                    self.buyCardFromHand(col)
 
     def hasEnded(self):
         return self.gameOver
@@ -280,18 +316,6 @@ class SplendorGame:
         if self.gold > 0:
             player.addGold()
             self.gold -= 1
-
-    def processTurn(self):
-        """
-        Print the thing.
-        Enter your choice.
-        Do things.
-        Yeah.
-        """
-        #print interface crap here
-        while not self.actionTaken:
-            pass #print queries here
-        self.endTurn()
 
     def endTurn(self):
         """
@@ -408,3 +432,5 @@ class SplendorGame:
 
 
 game = SplendorGame(int(input("How many players [2-4]?: ")))
+while not game.hasEnded():
+    game.processTurn()
