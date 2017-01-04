@@ -189,8 +189,14 @@ class GemSet:
             ans += i
         return ans
 
+    def __str__(self):
+        s = ""
+        for i in range(5):
+            s += "{0}{1}, ".format(self.mony[i], self.trans.keys()[i].upper())
 
+        return s[:-2]
 
+    
 class SplendorGame:
     def __init__(self, numPlayers):
         tier1 = []
@@ -199,18 +205,65 @@ class SplendorGame:
         nobility = []
         self.setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
         self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
-
-
+        
+        
         self.rules = self.setup[numPlayers]
         self.numPlayers = numPlayers
         self.gemPool = GemSet(self.rules[0], self.rules[0], self.rules[0], self.rules[0], self.rules[0])
-        self.gold = self.rules[0]
+        self.gold = 5
         self.decks = [SplendorDeck(nobility), SplendorDeck(tier3), SplendorDeck(tier2), SplendorDeck(tier1)]
         self.rows = [[self.decks[0].deal() for i in range(self.rules[2])], [self.decks[1].deal() for i in range(3)], [self.decks[2].deal() for i in range(3)], [self.decks[3].deal() for i in range(3)]]
         self.players = [SPlayer(input("Player"+str(i+1)+"'s name: ")) for i in range(self.numPlayers)]
         self.gameOver = False
         self.current = 0
         self.actionTaken = False
+    
+    def displayUI(self):
+        #nobles
+        print("▓▓▓▓▓▓▓ " * (self.numPlayers + 1))
+        toprint = ""
+        for noble in self.rows[0]:
+            toprint += "▓ {0} {1} ▓ ".format(noble.cost.getAmt('d'), noble.cost.getAmt('s'))
+        print(toprint)
+        toprint = ""
+        for noble in self.rows[0]:
+            toprint += "▓{0} {1} {2}▓ ".format(noble.cost.getAmt('e'), noble.cost.getAmt('r'), noble.cost.getAmt('o'))
+        print(toprint)
+        print("▓▓▓▓▓▓▓ " * (self.numPlayers + 1))
+
+        print("\n")
+        
+        #devcards
+        for i in range(1,4):
+            print("░░░░░░░ " * 5)
+            toprint = "░░░░░░░ "
+            for card in self.rows[i]:
+                toprint += "░{0}   {1}░ ".format(card.prestige, card.bonus.upper())
+            print(toprint)
+            toprint = "░░░{0}░░░ ".format(4-i)
+            for card in self.rows[i]:
+                toprint += "░ {0} {1} ░ ".format(noble.cost.getAmt('d'), noble.cost.getAmt('s'))
+            print(toprint)
+            toprint = "░░░░░░░ "
+            for card in self.rows[i]:
+                toprint += "░{0} {1} {2}░ ".format(noble.cost.getAmt('e'), noble.cost.getAmt('r'), noble.cost.getAmt('o'))
+            print(toprint)
+            print("░░░░░░░ " * 5)
+
+        #tokens
+        print("AVAILABLE: {0}, {1}G".format(str(self.gemPool), self.gold))
+
+        print("-" * 40)
+
+        #playerinfo
+        print("YOU HAVE:  {0} Prestige Points".format(self.current.prestige))
+        print("{0}, {1}G tokens".format(self.current.mony, self.current.gold).rjust(40))
+        print("{0} in bonuses".format(self.current.bonus).rjust(40))
+
+        #commands
+        print("ENTER:      [1] to take tokens")
+        print("            [2] to reserve a card")
+        print("            [3] to purchase a card")
 
     def hasEnded(self):
         return self.gameOver
