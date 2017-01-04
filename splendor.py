@@ -69,6 +69,12 @@ class SPlayer:
     def getHandSize(self):
         return len(self.hand)
 
+    def canBuyCard(self, card):
+        return card.canBuy(self.mony, self.bonus, self.gold)
+
+    def canBeVisited(self, noble):
+        return noble.willVisit(self.bonus)
+
 class GemSet:
     """
     Arrangement:
@@ -129,6 +135,7 @@ class GemSet:
         return ans
 
 
+
 class SplendorGame:
     def __init__(self, numPlayers):
         tier1 = []
@@ -153,6 +160,14 @@ class SplendorGame:
     def hasEnded(self):
         return self.gameOver
 
+    def giveGem(self, player, amt, gem):
+        amt = max(0, amt)
+        if self.gemPool.getAmt(gem) - amt >= 0:
+            player.addGem(amt, gem)
+            self.gemPool.removeGem(amt, gem)
+        else:
+            print("Too few gems left to do that.")
+
     def endTurn(self):
         #end of turn stuff happens here
         #
@@ -166,26 +181,35 @@ class SplendorGame:
             print("Must be 3 different gems!")
         else:
             p = self.players[self.current]
-            p.addGem(1, a)
-            p.addGem(1, b)
-            p.addGem(1, c)
+            self.giveGem(p, 1, a)
+            self.giveGem(p, 1, b)
+            self.giveGem(p, 1, c)
             self.endTurn()
 
     def take2Same(self, a):
         if self.gemPool.getAmt(a) >= 4:
             p = self.players[self.current]
-            p.addGem(2, a)
+            self.giveGem(p, 2, a)
             self.endTurn()
 
     def reserveCard(self, row, col):
         p = self.players[self.current]
         if p.getHandSize < 3:
             p.addToHand(self.rows[row].pop(col))
+            if self.rules[1]:
+                p.addGold()
             self.endTurn()
 
-    def buyCard(self, isOnBoard):
+    def buyCardFromBoard(self, row, col):
         p = self.players[self.current]
         pass
 
-playerNum = int(input("How many players [2-4]?: "))
-game = SplendorGame(playerNum)
+    def buyCardFromHand(self, num):
+        p = self.players[self.current]
+        if num < p.getHandSize() and num >= 0:
+            pass
+        pass
+
+
+
+game = SplendorGame(int(input("How many players [2-4]?: ")))
