@@ -107,7 +107,7 @@ class SPlayer:
         return (cost, a)
 
     def getNumTokens(self):
-        return self.mony.getTotal() + self.gold
+        return (self.mony.getTotal() + self.gold)
 
     def receiveNoble(self, noble):
         self.nobles.append(noble)
@@ -190,11 +190,11 @@ class GemSet:
         return ans
 
     def __str__(self):
-        s = ""
+        s = []
+        keys = ["D", "S", "E", "R", "O"]
         for i in range(5):
-            s += "{0}{1}, ".format(self.mony[i], list(self.trans.keys())[i].upper())
-
-        return s[:-2]
+            s.append(str(self.mony[i])+str(keys[i]).upper())
+        return ", ".join(s)
 
     
 class SplendorGame:
@@ -298,8 +298,9 @@ class SplendorGame:
                     col = int(input("Which card will you buy? [numbered 1-4 from the left]: ")) - 1
                     self.buyCardFromBoard(row, col)
                 elif econ == 2:
-                    col = int(input("Which card will you reserve? [numbered 1 onwards from the left]: ")) - 1
+                    col = int(input("Which card will you buy? [numbered 1 onwards from the left]: ")) - 1
                     self.buyCardFromHand(col)
+        self.endTurn()
 
     def hasEnded(self):
         return self.gameOver
@@ -397,7 +398,7 @@ class SplendorGame:
 
     def reserveCard(self, row, col):
         p = self.players[self.current]
-        if p.getHandSize < 3:
+        if p.getHandSize() < 3:
             p.addToHand(self.rows[row].pop(col))
             if self.rules[1]:
                 self.giveGold(p)
@@ -426,7 +427,8 @@ class SplendorGame:
                 self.actionTaken = True
             else:
                 print("Cannot afford that card.")
-        print("Invalid selection number.")
+        else:
+            print("Invalid selection number.")
 
 
 
