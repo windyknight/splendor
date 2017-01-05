@@ -1,71 +1,5 @@
 from enum import Enum
 
-class InstrumentType(Enum):
-    '''
-    Defines three types for musical instruments.
-    '''
-    PERCUSSION = 'p'
-    STRINGS = 's'
-    WIND = 'w'    
-
-class Instrument:
-    '''
-    This defines a musical instrument with the name of
-    the instrument and its classification.
-    '''
-    def __init__(self, name, classification):
-        '''
-        Creates a new instrument. The name and
-        classification of the instrument are required
-        parameters.
-        '''
-        self.name = name
-        if isinstance(classification, InstrumentType):
-            self.classification = classification
-        else:
-            raise ValueError("Invalid value for instrument type: {}".format(classification))
-
-    def getClassification(self):
-        '''
-        Returns the classification of the musical instrument.
-        '''
-        return self.classification
-
-    def getName(self):
-        '''
-        Returns the name of the musical instrument.
-        '''
-        return self.name
-
-    def setClassification(self, classification):
-        '''
-        Sets the classification of the musical instrument.
-        '''
-        if isinstance(classification, InstrumentType):
-            self.classification = classification
-        else:
-            raise ValueError("Invalid value for instrument type: {}".format(classification))
-
-    def setName(self, name):
-        '''
-        Sets the name of the musical instrument.
-        '''
-        self.name = name
-
-    def __gt__(self, other):
-        '''
-        Convenience function for comparison between
-        instruments.
-        '''
-        return self.name > other.getName()
-
-    def __lt__(self, other):
-        '''
-        Convenience function for comparison between
-        instruments.
-        '''
-        return self.name < other.getName()
-
 class SLLNode:
     '''
     This defines a node in a singly-linked list. The node
@@ -107,10 +41,6 @@ class SLLNode:
 
 class SLList:
     '''
-    INSTRUCTIONS: As a class, write the methods and the
-    documentation for these for a fully-working
-    singly-linked list.
-    
     Properties of the singly-linked list.
     head: reference to the first node
     '''
@@ -131,7 +61,6 @@ class SLList:
         Inserts a node at the end of the list.
         '''
         if isinstance(data, SLLNode):
-            # insert more code here
             if self.head is None:
                 self.head = data
             else:
@@ -142,7 +71,6 @@ class SLList:
             pass
         else:
             newNode = SLLNode(data)
-        # insert more code here
             if self.head is None:
                 self.head = newNode
             else:
@@ -168,18 +96,25 @@ class SLList:
         pass
 
     def getSizealt(self):
+        '''
+        Alternate function for returning the size of the list.
+        '''
         current = head
         size = 0
         while current is not None:
             size += 1
             current = current.getNext()
         return size
-##        return self.size
     def getSize(self):
+        '''
+        Returns the size of the list.
+        '''
         return self.size
 
     def countInstances(self, data):
-        # Count the number of times
+        '''
+        Returns the number of instances of the data from the list.
+        '''
         num = 0
         current = self.head
         if isinstance(data, SLLNode):
@@ -194,6 +129,9 @@ class SLList:
         pass
 
     def search(self, data):
+        '''
+        Returns the reference to the node of the given data, otherwise returns a value error.
+        '''
         # ValueError("Item {} not found".format(str(data)))
         # should be raised if the data is not found. If it
         # is found, the reference to the node is returned.
@@ -210,6 +148,9 @@ class SLList:
         pass
 
     def insertAfter(self, data, newdata):
+        '''
+        Inserts the newdata value after the data reference node.
+        '''
         # Look for the instance of data and add a new node
         # after it with newdata.
         if not isinstance(newdata, SLLNode):
@@ -227,6 +168,9 @@ class SLList:
         pass
 
     def delete(self, data):
+        '''
+        Deletes the data from the list.
+        '''
         # Hint: you can use search.
         if isinstance(data, SLLNode):
             data = data.getData()
@@ -247,6 +191,9 @@ class SLList:
             raise ValueError("Item {} not found".format(str(data)))
 
     def insertInOrder(self, data):
+        '''
+        Inserts the data in ascending order.
+        '''
         # Insert a new node assuming that the list is in
         # ascending order and the order is preserved.
         current = self.head
@@ -264,30 +211,48 @@ class SLList:
         self.size += 1
 
     def read(self):
+        '''
+        Returns the values of the list.
+        '''
         curr = self.head
         while curr is not None:
             yield curr.getData()
             curr = curr.getNext()
 
     def emptyOut(self):
+        '''
+        Deletes the whole list.
+        '''
         while self.head is not None:
             self.delete(self.head.getData())
         self.size = 0
 
     def head(self):
+        '''
+        Returns the reference to head.
+        '''
         return self.head
 
-    def insert(self):
-        pass
-
 class Stack(SLList):
+    '''
+    This class defines the properties of a Stack.
+    '''
     def __init__(self):
+        '''
+        Creates a stack based from the SLList super class.
+        '''
         super().__init__()
 
     def push(self, data):
+        '''
+        Inserts the data to head, and pushing the list to the right.
+        '''
         super().insertAtHead(SLLNode(data))
 
     def pop(self):
+        '''
+        Deletes the value at head and returns the reference of head.
+        '''
         data = super().head()
         if data is not None:
             data = data.getData()
@@ -295,25 +260,43 @@ class Stack(SLList):
         return data
 
     def top(self):
+        '''
+        Returns the value at head.
+        '''
         if super().head() is not None:
             return super().head().getData()
         else:
             return None
 
     def getSize(self):
+        '''
+        Returns the size of the stack.
+        '''
         return super().getSize()
 
     def empty(self):
+        '''
+        Returns the size of stack to zero.
+        '''
         return self.getSize() == 0
 
     def read(self):
+        '''
+        Returns the data in the stack.
+        '''
         tmp = [i for i in super().read()]
         return tmp
 
     def emptyOut(self):
+        '''
+        Deletes the data in the stack.
+        '''
         super().emptyOut()
 
     def search(self, data):
+        '''
+        Returns the reference of the data, otherwise returns false.
+        '''
         try:
             super.search(data)
             return True
