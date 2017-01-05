@@ -184,6 +184,7 @@ class SPlayer:
         return (cost, a)
 
     def getNumTokens(self):
+
         '''
         Returns the number of tokens the player has.
         '''
@@ -298,7 +299,7 @@ class GemSet:
         s = []
         keys = ["D", "S", "E", "R", "O"]
         for i in range(5):
-            s.append(str(self.mony[i])+str(keys[i]).upper())
+            s.append(str(self.mony[i])+str(keys[i]))
         return ", ".join(s)
 
     
@@ -377,6 +378,20 @@ class SplendorGame:
             print("{0}, {1}G tokens".format(p.mony, p.gold).rjust(40))
             print("{0} in bonuses".format(p.bonus).rjust(40))
 
+            reserved= ""
+
+            for card in p.hand:
+                reserved += "░{0}   {1}░ ".format(card.prestige, card.bonus.upper())
+            print(reserved)
+            reserved = ""
+            for card in p.hand:
+                reserved += "░ {0} {1} ░ ".format(card.cost.getAmt('d'), card.cost.getAmt('s'))
+            print(reserved)
+            reserved = ""
+            for card in p.hand:
+                reserved += "░{0} {1} {2}░ ".format(card.cost.getAmt('e'), card.cost.getAmt('r'), card.cost.getAmt('o'))
+            print(reserved)
+
             #commands
             print("ENTER:      [1] to take tokens")
             print("            [2] to reserve a card")
@@ -412,7 +427,7 @@ class SplendorGame:
                     col = int(input("Which card will you buy? [numbered 1-4 from the left]: ")) - 1
                     self.buyCardFromBoard(row, col)
                 elif econ == 2:
-                    col = int(input("Which card will you buy? [numbered 1 onwards from the left]: ")) - 1
+                    col = int(input("Which card will you reserve? [numbered 1 onwards from the left]: ")) - 1
                     self.buyCardFromHand(col)
         self.endTurn()
 
@@ -565,8 +580,7 @@ class SplendorGame:
                 self.actionTaken = True
             else:
                 print("Cannot afford that card.")
-        else:
-            print("Invalid selection number.")
+        print("Invalid selection number.")
 
 
 while True:
