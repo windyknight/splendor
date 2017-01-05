@@ -2,27 +2,57 @@ from linkedlists import Stack
 from random import shuffle
 
 class SplendorCard:
+    '''
+    This class creates a basic Splendor Card.
+    '''
     def __init__(self, prestige, cost, bonus):
+        '''
+        Properties of SplendorCard class.
+        '''
         self.prestige = prestige
         self.cost = cost
         self.bonus = bonus
 
 class DevCard(SplendorCard):
+    '''
+    This class is a SplendorCard subclass for development cards.
+    '''
     def __init__(self, prestige, cost, bonus):
+        '''
+        Properties of DevCard class.
+        '''
         super().__init__(prestige, cost, bonus)
 
     def canBuy(self, mony, bonus, gold):
+        '''
+        Returns a boolean value if the development card is buyable.
+        '''
         return (mony+bonus)-self.cost <= gold
 
 class NobleCard(SplendorCard):
+    '''
+    This class is a SplendorCard subclass for noble cards.
+    '''
     def __init__(self, cost):
+        '''
+        Properties of NobleCard class.
+        '''
         super().__init__(3, cost, None)
 
     def willVisit(self, bonus):
+        '''
+        Returns a boolean value if the noble will visit the player.
+        '''
         return bonus > self.cost
 
 class SplendorDeck(Stack):
+    '''
+    This class creates the Splendor's deck as a stack.
+    '''
     def __init__(self, cards):
+        '''
+        Properties of SplendorDeck class.
+        '''
         if isinstance(cards, list):
             cards = list(cards)
         super().__init__()
@@ -31,6 +61,9 @@ class SplendorDeck(Stack):
         self.shuffle()
 
     def shuffle(self):
+        '''
+        Shuffles the deck.
+        '''
         cards = []
         while not super().empty():
             cards.append(super().pop())
@@ -39,10 +72,19 @@ class SplendorDeck(Stack):
             super().push(cards.pop())
 
     def deal(self):
+        '''
+        Removes the head node of the stack.
+        '''
         return super().pop()
 
 class SPlayer:
+    '''
+    This class creates the player of the game.
+    '''
     def __init__(self, name):
+        '''
+        Properties of SPlayer class.
+        '''
         self.name = name
         self.hand = []
         self.devs = {'d':[], 's':[], 'e':[], 'r':[], 'o':[]}
@@ -54,39 +96,74 @@ class SPlayer:
         self.nobles = []
 
     def __lt__(self, other):
+        '''
+        Returns a boolean value if the a player has less than the other player's number of development cards.
+        '''
         return self.getNumDevs() < other.getNumDevs()
 
     def addGem(self, amt, gem):
+        '''
+        Adds the gem to the player's property.
+        '''
         self.mony.addGem(amt, gem)
 
     def removeGem(self, amt, gem):
+        '''
+        Removes the gem from the player's property.
+        '''
         self.mony.removeGem(amt, gem)
 
     def addGold(self):
+        '''
+        Adds gold to the player's property.
+        '''
         self.gold += 1
 
     def removeGold(self, amt):
+        '''
+        Removes gold from the player's property.
+        '''
         self.gold = max(0, self.gold - max(0, amt))
 
     def addToHand(self, card):
+        '''
+        Adds the card to the player's hand.
+        '''
         self.hand.append(card)
 
     def getHandSize(self):
+        '''
+        Returns the number of cards of the player.
+        '''
         return len(self.hand)
 
     def canBuyCard(self, card):
+        '''
+        Returns a boolean value if the card is buyable from the field.
+        Inherits the canBuy() function from the DevCard class.
+        '''
         return card.canBuy(self.mony, self.bonus, self.gold)
 
     def canBuyFromHand(self, num):
+        '''
+        Returns a boolean value if the card is buyable from the player's hand.
+        Inherits the canBuyCard() function from this class.
+        '''
         return self.canBuyCard(self.hand[num])
 
     def canBeVisited(self, noble):
+        '''
+        Returns a boolean value if the noble will visit the player.
+        Inherits the willVisit() function from the NobleCard class.
+        '''
         return noble.willVisit(self.bonus)
 
     def buyCard(self, card):
+        '''
+        Gives the player the card he/she wants to buy and returns the cost of card and gold used by the player.
+        '''
         cost = card.cost ^ self.bonus
         a = 0
-        #gold shit
         if self.gold > 0:
             deduct = GemSet()
             a = int(input("How much gold would you like to allocate to this purchase? "))
@@ -107,13 +184,23 @@ class SPlayer:
         return (cost, a)
 
     def getNumTokens(self):
-        return self.mony.getTotal() + self.gold
+
+        '''
+        Returns the number of tokens the player has.
+        '''
+        return (self.mony.getTotal() + self.gold)
 
     def receiveNoble(self, noble):
+        '''
+        Appends the noble to the player's properties and adds prestige to the player.
+        '''
         self.nobles.append(noble)
         self.prestige += noble.prestige
 
     def getNumDevs(self):
+        '''
+        Returns the number of development cards the player currently has.
+        '''
         ans = 0
         for k, v in self.devs.items():
             ans += len(v)
@@ -121,10 +208,14 @@ class SPlayer:
 
 class GemSet:
     """
+    This class creates the gems used in the game.
     Arrangement:
     D S E R O
     """
     def __init__(self, d=0, s=0, e=0, r=0, o=0):
+        '''
+        Properties of the GemSet class.
+        '''
         self.mony = [d,s,e,r,o]
         self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
 
@@ -172,33 +263,54 @@ class GemSet:
         return GemSet(a,b,c,d,e)
 
     def addGem(self, amt, gem):
+        '''
+        Adds gem to the GemSet.
+        '''
         i = self.trans[gem.lower()]
         self.mony[i] += max(0, amt)
 
     def removeGem(self, amt, gem):
+        '''
+        Removes gem from the GemSet.
+        '''
         i = self.trans[gem.lower()]
         self.mony[i] = max(0, self.mony[i]-amt)
 
     def getAmt(self, gem):
+        '''
+        Returns the number of specified gems.
+        '''
         i = self.trans[gem.lower()]
         return self.mony[i]
 
     def getTotal(self):
+        '''
+        Returns the total number of gems.
+        '''
         ans = 0
         for i in self.mony:
             ans += i
         return ans
 
     def __str__(self):
-        s = ""
+        '''
+        String representation of the gems.
+        '''
+        s = []
+        keys = ["D", "S", "E", "R", "O"]
         for i in range(5):
-            s += "{0}{1}, ".format(self.mony[i], list(self.trans.keys())[i].upper())
-
-        return s[:-2]
+            s.append(str(self.mony[i])+str(keys[i]))
+        return ", ".join(s)
 
     
 class SplendorGame:
+    '''
+    This class is the game itself.
+    '''
     def __init__(self, numPlayers):
+        '''
+        Properties of SplendorGame.
+        '''
         tier1 = [DevCard(1, GemSet(5,4,5,2,1), 'd') for i in range(50)]
         tier2 = [DevCard(1, GemSet(1,4,3,2,1), 'e') for i in range(50)]
         tier3 = [DevCard(1, GemSet(5,4,3,2,3), 'r') for i in range(50)]
@@ -219,6 +331,9 @@ class SplendorGame:
         self.actionTaken = False
     
     def processTurn(self):
+        '''
+        Function for processing the player's turn.
+        '''
         p = self.players[self.current]
         #nobles
         print("▓▓▓▓▓▓▓ " * (self.numPlayers + 1))
@@ -317,9 +432,15 @@ class SplendorGame:
         self.endTurn()
 
     def hasEnded(self):
+        '''
+        Returns a self property to end the game.
+        '''
         return self.gameOver
 
     def giveGem(self, player, amt, gem):
+        '''
+        Gives the gem to the player.
+        '''
         amt = max(0, amt)
         if self.gemPool.getAmt(gem) - amt >= 0:
             player.addGem(amt, gem)
@@ -328,6 +449,9 @@ class SplendorGame:
             print("Too few gems left to do that.")
 
     def giveGold(self, player):
+        '''
+        Gives gold to the player.
+        '''
         if self.gold > 0:
             player.addGold()
             self.gold -= 1
@@ -390,6 +514,9 @@ class SplendorGame:
                 self.gameOver = True
 
     def take3Diff(self, a, b, c):
+        '''
+        Function for the player to take three different gems
+        '''
         a = a.lower()
         b = b.lower()
         c = c.lower()
@@ -403,6 +530,9 @@ class SplendorGame:
             self.actionTaken = True
 
     def take2Same(self, a):
+        '''
+        Function for the player to take two same gems.
+        '''
         if self.gemPool.getAmt(a) >= 4:
             p = self.players[self.current]
             self.giveGem(p, 2, a)
@@ -411,6 +541,9 @@ class SplendorGame:
             print("There must be at least 4 tokens of that type left to do that.")
 
     def reserveCard(self, row, col):
+        '''
+        Function for the player to reserve a card from the field.
+        '''
         p = self.players[self.current]
         if p.getHandSize() < 3:
             p.addToHand(self.rows[row].pop(col))
@@ -421,6 +554,9 @@ class SplendorGame:
             print("You have too many reservations.")
 
     def buyCardFromBoard(self, row, col):
+        '''
+        Function for the player to buy a card from the field/board.
+        '''
         p = self.players[self.current]
         card = self.rows[row][col]
         if p.canBuyCard(card):
@@ -432,6 +568,9 @@ class SplendorGame:
             print("Cannot afford that card.")
 
     def buyCardFromHand(self, num):
+        '''
+        Function for the player to buy the card from the reserved hand.
+        '''
         p = self.players[self.current]
         if num < p.getHandSize() and num >= 0:
             if p.canBuyFromHand(num):
@@ -444,8 +583,14 @@ class SplendorGame:
         print("Invalid selection number.")
 
 
-
-
-game = SplendorGame(int(input("How many players [2-4]?: ")))
+while True:
+    playerNum = int(input("How many players [2-4]?: "))
+    
+    if playerNum < 2 or playerNum > 4:
+        print("Invalid number of players.")
+    else:
+        break
+        
+game = SplendorGame(playerNum)
 while not game.hasEnded():
     game.processTurn()
