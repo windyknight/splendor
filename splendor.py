@@ -548,8 +548,7 @@ class SplendorGame:
         p = self.players[self.current]
         if p.getHandSize() < 3:
             p.addToHand(self.rows[row].pop(col))
-            if self.rules[1]:
-                self.giveGold(p)
+            self.giveGold(p)
             self.actionTaken = True
         else:
             print("You have too many reservations.")
