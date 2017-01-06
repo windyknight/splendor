@@ -177,7 +177,7 @@ class SPlayer:
                         deduct.addGem(1,i)
                 cost = cost ^ deduct
                 self.removeGold(a)
-        self.mony = self.mony - cost
+        self.mony = self.mony ^ cost
         self.bonus.addGem(1, card.bonus.lower())
         self.devs[card.bonus.lower()].append(card)
         self.prestige += card.prestige
