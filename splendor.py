@@ -407,9 +407,8 @@ class SplendorGame:
                 print("            [2] take 2 same tokens")
                 order = int(input())
                 if order == 1:
-                    gems = input("Please input 3 gems to take from [D, S, E, R, O]: ").split()
-                    if len(gems) == 3 and not ('g' in gems or 'G' in gems):
-                        self.take3Diff(gems[0], gems[1], gems[2])
+                    gems = input("Please input up to 3 gems to take from [D, S, E, R, O]: ").lower().split()
+                    self.takeGems(gems)
                 else:
                     gem = input("Please input gem to take (there must be 4 of that gem available) [D, S, E, R, O]: ")
                     self.take2Same(gem)
@@ -540,6 +539,36 @@ class SplendorGame:
             self.actionTaken = True
         else:
             print("There must be at least 4 tokens of that type left to do that.")
+            
+    def takeGems(self, gems):
+        '''
+        Function for the player to to take gems from the gem pool.
+        '''
+        #check if valid
+        for g in gems:
+            if g not in ['d','s','e','r','o']:
+                print(g.upper() + " is not a gem!")
+                return
+            if self.gemPool.getAmt(g) == 0:
+                print("There is not enough " + g.upper())
+                return
+            
+        #check if the same
+        if len(gems) > len(set(gems)):
+            if len(gems) == 3:
+                print("Gems should be unique!")
+                return
+            if self.gemPool.getAmt(gems[0]) < 4:
+                print("There must be at least 4 of this gem.")
+                return
+            self.giveGem(self.players[self.current], 2, gems[0])
+            self.actionTaken = True
+            return
+        
+        for g in gems:
+            self.giveGem(self.players[self.current], 1, g)
+
+        self.actionTaken = True
 
     def reserveCard(self, row, col):
         '''
