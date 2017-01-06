@@ -314,7 +314,8 @@ class SplendorGame:
         tier1 = [DevCard(1, GemSet(5,4,5,2,1), 'd') for i in range(50)]
         tier2 = [DevCard(1, GemSet(1,4,3,2,1), 'e') for i in range(50)]
         tier3 = [DevCard(1, GemSet(5,4,3,2,3), 'r') for i in range(50)]
-        nobility = [NobleCard(GemSet(1,2,3,4,5)) for i in range(50)]
+        nobility = [NobleCard(GemSet(0,0,3,3,3)),NobleCard(GemSet(3,3,3,0,0)),NobleCard(GemSet(0,3,3,3,0)),NobleCard(GemSet(3,0,0,3,3)),NobleCard(GemSet(3,3,0,0,3)),
+                   NobleCard(GemSet(4,4,0,0,0)),NobleCard(GemSet(0,4,4,0,0)),NobleCard(GemSet(4,0,0,4,0)),NobleCard(GemSet(0,0,4,4,0)),NobleCard(GemSet(0,0,0,4,4)),NobleCard(GemSet(4,0,0,0,4))]
         self.setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
         self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
         
