@@ -177,7 +177,7 @@ class SPlayer:
                         deduct.addGem(1,i)
                 cost = cost ^ deduct
                 self.removeGold(a)
-        self.mony = self.mony - cost
+        self.mony = self.mony ^ cost
         self.bonus.addGem(1, card.bonus.lower())
         self.devs[card.bonus.lower()].append(card)
         self.prestige += card.prestige
@@ -314,7 +314,8 @@ class SplendorGame:
         tier1 = [DevCard(1, GemSet(5,4,5,2,1), 'd') for i in range(50)]
         tier2 = [DevCard(1, GemSet(1,4,3,2,1), 'e') for i in range(50)]
         tier3 = [DevCard(1, GemSet(5,4,3,2,3), 'r') for i in range(50)]
-        nobility = [NobleCard(GemSet(1,2,3,4,5)) for i in range(50)]
+        nobility = [NobleCard(GemSet(0,0,3,3,3)),NobleCard(GemSet(3,3,3,0,0)),NobleCard(GemSet(0,3,3,3,0)),NobleCard(GemSet(3,0,0,3,3)),NobleCard(GemSet(3,3,0,0,3)),
+                   NobleCard(GemSet(4,4,0,0,0)),NobleCard(GemSet(0,4,4,0,0)),NobleCard(GemSet(4,0,0,4,0)),NobleCard(GemSet(0,0,4,4,0)),NobleCard(GemSet(0,0,0,4,4)),NobleCard(GemSet(4,0,0,0,4))]
         self.setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
         self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
         
@@ -406,9 +407,8 @@ class SplendorGame:
                 print("            [2] take 2 same tokens")
                 order = int(input())
                 if order == 1:
-                    gems = input("Please input 3 gems to take from [D, S, E, R, O]: ").split()
-                    if len(gems) == 3 and not ('g' in gems or 'G' in gems):
-                        self.take3Diff(gems[0], gems[1], gems[2])
+                    gems = input("Please input up to 3 gems to take from [D, S, E, R, O]: ").lower().split()
+                    self.takeGems(gems)
                 else:
                     gem = input("Please input gem to take (there must be 4 of that gem available) [D, S, E, R, O]: ")
                     self.take2Same(gem)
@@ -539,6 +539,36 @@ class SplendorGame:
             self.actionTaken = True
         else:
             print("There must be at least 4 tokens of that type left to do that.")
+            
+    def takeGems(self, gems):
+        '''
+        Function for the player to to take gems from the gem pool.
+        '''
+        #check if valid
+        for g in gems:
+            if g not in ['d','s','e','r','o']:
+                print(g.upper() + " is not a gem!")
+                return
+            if self.gemPool.getAmt(g) == 0:
+                print("There is not enough " + g.upper())
+                return
+            
+        #check if the same
+        if len(gems) > len(set(gems)):
+            if len(gems) == 3:
+                print("Gems should be unique!")
+                return
+            if self.gemPool.getAmt(gems[0]) < 4:
+                print("There must be at least 4 of this gem.")
+                return
+            self.giveGem(self.players[self.current], 2, gems[0])
+            self.actionTaken = True
+            return
+        
+        for g in gems:
+            self.giveGem(self.players[self.current], 1, g)
+
+        self.actionTaken = True
 
     def reserveCard(self, row, col):
         '''
@@ -547,8 +577,7 @@ class SplendorGame:
         p = self.players[self.current]
         if p.getHandSize() < 3:
             p.addToHand(self.rows[row].pop(col))
-            if self.rules[1]:
-                self.giveGold(p)
+            self.giveGold(p)
             self.actionTaken = True
         else:
             print("You have too many reservations.")
