@@ -1,5 +1,7 @@
 from linkedlists import Stack
 from random import shuffle
+import traceback
+import logging
 
 class SplendorCard:
     '''
@@ -177,7 +179,7 @@ class SPlayer:
                         deduct.addGem(1,i)
                 cost = cost ^ deduct
                 self.removeGold(a)
-        self.mony = self.mony - cost
+        self.mony = self.mony ^ cost
         self.bonus.addGem(1, card.bonus.lower())
         self.devs[card.bonus.lower()].append(card)
         self.prestige += card.prestige
@@ -311,10 +313,106 @@ class SplendorGame:
         '''
         Properties of SplendorGame.
         '''
-        tier1 = [DevCard(1, GemSet(5,4,5,2,1), 'd') for i in range(50)]
-        tier2 = [DevCard(1, GemSet(1,4,3,2,1), 'e') for i in range(50)]
-        tier3 = [DevCard(1, GemSet(5,4,3,2,3), 'r') for i in range(50)]
-        nobility = [NobleCard(GemSet(1,2,3,4,5)) for i in range(50)]
+        tier1 = []
+        tier2 = []
+        tier3 = []
+
+        tier1.append(DevCard(1, GemSet(0,4,0,0,0), 'o'))
+        tier1.append(DevCard(0, GemSet(1,1,1,1,0), 'o'))
+        tier1.append(DevCard(0, GemSet(0,0,3,0,0), 'o'))
+        tier1.append(DevCard(0, GemSet(2,2,0,1,0), 'o'))
+        tier1.append(DevCard(0, GemSet(0,0,2,1,0), 'o'))
+        tier1.append(DevCard(0, GemSet(2,0,2,0,0), 'o'))
+        tier1.append(DevCard(0, GemSet(1,1,1,1,0), 'o'))
+        tier1.append(DevCard(1, GemSet(4,0,0,0,0), 'r'))
+        tier1.append(DevCard(0, GemSet(2,1,1,0,1), 'r'))
+        tier1.append(DevCard(0, GemSet(0,2,1,0,0), 'r'))       
+        tier1.append(DevCard(0, GemSet(3,0,0,0,0), 'r'))
+        tier1.append(DevCard(0, GemSet(1,0,0,1,3), 'r'))   
+        tier1.append(DevCard(0, GemSet(2,0,1,0,2), 'r'))        
+        tier1.append(DevCard(0, GemSet(1,1,1,0,1), 'r'))        
+        tier1.append(DevCard(0, GemSet(2,0,0,2,0), 'r'))        
+        tier1.append(DevCard(0, GemSet(0,1,0,2,2), 'e'))        
+        tier1.append(DevCard(0, GemSet(1,1,0,1,1), 'e'))        
+        tier1.append(DevCard(0, GemSet(1,3,1,0,0), 'e'))       
+        tier1.append(DevCard(0, GemSet(2,1,0,0,0), 'e'))        
+        tier1.append(DevCard(0, GemSet(1,1,0,1,2), 'e'))        
+        tier1.append(DevCard(0, GemSet(0,0,0,3,0), 'e'))        
+        tier1.append(DevCard(0, GemSet(0,2,0,2,0), 'e'))        
+        tier1.append(DevCard(1, GemSet(0,0,0,4,0), 's'))
+        tier1.append(DevCard(0, GemSet(0,0,0,0,3), 's'))
+        tier1.append(DevCard(0, GemSet(0,0,0,2,1), 'd'))
+        tier1.append(DevCard(0, GemSet(0,2,2,0,1), 'd'))
+        tier1.append(DevCard(0, GemSet(0,3,0,0,0), 'd'))
+        tier1.append(DevCard(0, GemSet(0,1,2,1,1), 'd'))
+        tier1.append(DevCard(0, GemSet(3,1,0,0,1), 'd'))
+        tier1.append(DevCard(0, GemSet(0,2,0,0,2), 'd'))
+        tier1.append(DevCard(0, GemSet(0,1,1,1,1), 'd'))
+        tier1.append(DevCard(1, GemSet(0,0,4,0,0), 'd'))
+        tier1.append(DevCard(0, GemSet(0,0,2,0,2), 's'))
+        tier1.append(DevCard(0, GemSet(0,1,3,1,0), 's'))
+        tier1.append(DevCard(0, GemSet(1,0,2,2,0), 's'))
+        tier1.append(DevCard(0, GemSet(1,0,0,0,2), 's'))
+        tier1.append(DevCard(0, GemSet(1,0,1,1,1), 's'))
+        tier1.append(DevCard(0, GemSet(1,0,1,2,1), 's'))
+
+        tier2.append(DevCard(1, GemSet(2,0,0,2,3), 'r'))
+        tier2.append(DevCard(1, GemSet(0,3,0,2,3), 'r'))
+        tier2.append(DevCard(2, GemSet(1,4,2,0,0), 'r'))
+        tier2.append(DevCard(2, GemSet(0,0,0,0,5), 'r'))
+        tier2.append(DevCard(2, GemSet(3,0,0,0,5), 'r'))
+        tier2.append(DevCard(3, GemSet(0,0,0,6,0), 'r'))
+        tier2.append(DevCard(1, GemSet(2,3,0,3,0), 'd'))
+        tier2.append(DevCard(1, GemSet(0,0,3,2,2), 'd'))
+        tier2.append(DevCard(2, GemSet(0,0,1,4,2), 'd'))
+        tier2.append(DevCard(2, GemSet(0,0,0,5,3), 'd'))
+        tier2.append(DevCard(2, GemSet(0,0,0,5,0), 'd'))
+        tier2.append(DevCard(3, GemSet(6,0,0,0,0), 'd'))
+        tier2.append(DevCard(1, GemSet(3,0,2,3,0), 'e'))
+        tier2.append(DevCard(1, GemSet(2,3,0,0,2), 'e'))
+        tier2.append(DevCard(2, GemSet(0,5,3,0,0), 'e'))
+        tier2.append(DevCard(2, GemSet(0,0,5,0,0), 'e'))
+        tier2.append(DevCard(2, GemSet(4,2,0,0,1), 'e'))
+        tier2.append(DevCard(3, GemSet(0,0,6,0,0), 'e'))
+        tier2.append(DevCard(1, GemSet(0,2,3,0,3), 's'))
+        tier2.append(DevCard(1, GemSet(0,2,2,3,0), 's'))
+        tier2.append(DevCard(2, GemSet(5,3,0,0,0), 's'))
+        tier2.append(DevCard(2, GemSet(0,5,0,0,0), 's'))
+        tier2.append(DevCard(2, GemSet(2,0,0,1,4), 's'))
+        tier2.append(DevCard(3, GemSet(0,6,0,0,0), 's'))
+        tier2.append(DevCard(1, GemSet(3,0,3,0,2), 'o'))
+        tier2.append(DevCard(1, GemSet(3,2,2,0,0), 'o'))
+        tier2.append(DevCard(2, GemSet(0,1,4,2,0), 'o'))
+        tier2.append(DevCard(2, GemSet(0,0,5,3,0), 'o'))
+        tier2.append(DevCard(2, GemSet(5,0,0,0,0), 'o'))
+        tier2.append(DevCard(3, GemSet(0,0,0,0,6), 'o'))
+
+        tier3.append(DevCard(3, GemSet(0,3,3,5,3), 'd'))
+        tier3.append(DevCard(5, GemSet(7,3,0,0,0), 's'))
+        tier3.append(DevCard(4, GemSet(7,0,0,0,0), 's'))
+        tier3.append(DevCard(4, GemSet(0,0,7,0,0), 'e'))
+        tier3.append(DevCard(3, GemSet(3,0,3,3,5), 's'))
+        tier3.append(DevCard(3, GemSet(5,3,0,3,3), 'e'))
+        tier3.append(DevCard(4, GemSet(0,0,3,6,3), 'o'))
+        tier3.append(DevCard(4, GemSet(0,0,0,7,0), 'o'))
+        tier3.append(DevCard(4, GemSet(0,3,6,3,0), 'r'))
+        tier3.append(DevCard(5, GemSet(3,0,0,0,7), 'd'))
+        tier3.append(DevCard(5, GemSet(0,0,7,3,0), 'r'))
+        tier3.append(DevCard(5, GemSet(0,0,0,7,3), 'o'))
+        tier3.append(DevCard(4, GemSet(3,6,3,0,0), 'e'))
+        tier3.append(DevCard(4, GemSet(0,7,0,0,0), 'e'))
+        tier3.append(DevCard(4, GemSet(6,3,0,0,3), 's'))
+        tier3.append(DevCard(3, GemSet(3,3,5,3,0), 'o'))
+        tier3.append(DevCard(4, GemSet(0,0,0,0,7), 'd'))
+        tier3.append(DevCard(3, GemSet(3,5,3,0,3), 'r'))
+        tier3.append(DevCard(4, GemSet(3,0,0,3,6), 'd'))
+        tier3.append(DevCard(5, GemSet(0,7,3,0,0), 'e'))
+
+        nobility = [NobleCard(GemSet(0,0,3,3,3)),NobleCard(GemSet(3,3,3,0,0)),NobleCard(GemSet(0,3,3,3,0)),NobleCard(GemSet(3,0,0,3,3)),NobleCard(GemSet(3,3,0,0,3)), NobleCard(GemSet(4,4,0,0,0)),NobleCard(GemSet(0,4,4,0,0)),NobleCard(GemSet(4,0,0,4,0)),NobleCard(GemSet(0,0,4,4,0)),NobleCard(GemSet(0,0,0,4,4)),NobleCard(GemSet(4,0,0,0,4))]
+        #tier1 = [DevCard(1, GemSet(5,4,5,2,1), 'd') for i in range(50)]
+        #tier2 = [DevCard(1, GemSet(1,4,3,2,1), 'e') for i in range(50)]
+        #tier3 = [DevCard(1, GemSet(5,4,3,2,3), 'r') for i in range(50)]
+        #nobility = [NobleCard(GemSet(1,2,3,4,5)) for i in range(50)]
         self.setup = {2:[4, False, 3], 3:[5, False, 4], 4:[7, True, 5]} #num per gem, can touch gold, num of nobles
         self.trans = {'d':0, 's':1, 'e':2, 'r':3, 'o':4}
         
@@ -379,7 +477,8 @@ class SplendorGame:
             print("{0} in bonuses".format(p.bonus).rjust(40))
 
             reserved= ""
-
+            
+            print("░░░░░░░ " * len(p.hand))
             for card in p.hand:
                 reserved += "░{0}   {1}░ ".format(card.prestige, card.bonus.upper())
             print(reserved)
@@ -391,46 +490,80 @@ class SplendorGame:
             for card in p.hand:
                 reserved += "░{0} {1} {2}░ ".format(card.cost.getAmt('e'), card.cost.getAmt('r'), card.cost.getAmt('o'))
             print(reserved)
+            print("░░░░░░░ " * len(p.hand))
 
             #commands
             print("ENTER:      [1] to take tokens")
             print("            [2] to reserve a card")
             print("            [3] to purchase a card")
-            com = int(input())
-            if com > 3 or com < 0:
-                print("Invalid.")
-                continue
-            if com == 1:
-                print("You have chosen to take TOKENS.")
-                print("ENTER:      [1] take 3 different tokens")
-                print("            [2] take 2 same tokens")
-                order = int(input())
-                if order == 1:
-                    gems = input("Please input 3 gems to take from [D, S, E, R, O]: ").split()
-                    if len(gems) == 3 and not ('g' in gems or 'G' in gems):
-                        self.take3Diff(gems[0], gems[1], gems[2])
+            
+            try:
+                com = int(input())
+                if com > 3 or com < 0:
+                    print("Invalid.")
+                    continue
+                if com == 1:
+                    print("You have chosen to take TOKENS.")
+                    print("ENTER:      [1] take 3 different tokens")
+                    print("            [2] take 2 same tokens")
+                    order = int(input())
+                    if order == 1:
+                        gems = input("Please input up to 3 gems to take from [D, S, E, R, O]: ").lower().split()
+                        self.takeGems(gems)
+                    else:
+                        gem = input("Please input gem to take (there must be 4 of that gem available) [D, S, E, R, O]: ")
+                        self.take2Same(gem)
+                elif com == 2:
+                    print("You have chosen to RESERVE.")
+                    row = 4 - int(input("What tier of card do you wish to reserve? [1-3]: "))
+                    col = int(input("Which card will you reserve? [numbered 1-4 from the left]: ")) - 1
+                    self.reserveCard(row, col)
                 else:
-                    gem = input("Please input gem to take (there must be 4 of that gem available) [D, S, E, R, O]: ")
-                    self.take2Same(gem)
-            elif com == 2:
-                print("You have chosen to RESERVE.")
-                row = 4 - int(input("What tier of card do you wish to reserve? [1-3]: "))
-                col = int(input("Which card will you reserve? [numbered 1-4 from the left]: ")) - 1
-                self.reserveCard(row, col)
-            else:
-                print("You have chosen to BUY.")
-                print("ENTER:      [1] buy card on board")
-                print("            [2] buy card from hand")
-                econ = int(input())
-                if econ == 1:
-                    row = 4 - int(input("What tier of card do you wish to buy? [1-3]: "))
-                    col = int(input("Which card will you buy? [numbered 1-4 from the left]: ")) - 1
-                    self.buyCardFromBoard(row, col)
-                elif econ == 2:
-                    col = int(input("Which card will you reserve? [numbered 1 onwards from the left]: ")) - 1
-                    self.buyCardFromHand(col)
+                    print("You have chosen to BUY.")
+                    print("ENTER:      [1] buy card on board")
+                    print("            [2] buy card from hand")
+                    econ = int(input())
+                    if econ == 1:
+                        row = 4 - int(input("What tier of card do you wish to buy? [1-3]: "))
+                        col = int(input("Which card will you buy? [numbered 1-4 from the left]: ")) - 1
+                        self.buyCardFromBoard(row, col)
+                    elif econ == 2:
+                        col = int(input("Which card will you reserve? [numbered 1 onwards from the left]: ")) - 1
+                        self.buyCardFromHand(col)
+            except (ValueError, TypeError):
+                print("\nInvalid input.\n")
+            
         self.endTurn()
 
+    def takeGems(self, gems):
+        '''
+        Function for the player to to take gems from the gem pool.
+        '''
+        #check if valid
+        for g in gems:
+            if g not in ['d','s','e','r','o']:
+                print(g.upper() + " is not a gem!")
+                return
+            if self.gemPool.getAmt(g) == 0:
+                print("There is not enough " + g.upper())
+                return
+            
+        #check if the same
+        if len(gems) > len(set(gems)):
+            if len(gems) == 3:
+                print("Gems should be unique!")
+                return
+            if self.gemPool.getAmt(gems[0]) < 4:
+                print("There must be at least 4 of this gem.")
+                return
+            self.giveGem(self.players[self.current], 2, gems[0])
+            self.actionTaken = True
+            return
+        
+        for g in gems:
+            self.giveGem(self.players[self.current], 1, g)
+
+        self.actionTaken = True
     def hasEnded(self):
         '''
         Returns a self property to end the game.
@@ -547,8 +680,7 @@ class SplendorGame:
         p = self.players[self.current]
         if p.getHandSize() < 3:
             p.addToHand(self.rows[row].pop(col))
-            if self.rules[1]:
-                self.giveGold(p)
+            self.giveGold(p)
             self.actionTaken = True
         else:
             print("You have too many reservations.")
@@ -565,7 +697,7 @@ class SplendorGame:
             self.gemPool = self.gemPool + x[0]
             self.actionTaken = True
         else:
-            print("Cannot afford that card.")
+            print("Cannot afford " + int(row) + "-" + int(col) + " card.\n")
 
     def buyCardFromHand(self, num):
         '''
@@ -582,15 +714,16 @@ class SplendorGame:
                 print("Cannot afford that card.")
         print("Invalid selection number.")
 
-
 while True:
-    playerNum = int(input("How many players [2-4]?: "))
+    try:
+        playerNum = int(input("How many players [2-4]?: "))
     
-    if playerNum < 2 or playerNum > 4:
-        print("Invalid number of players.")
-    else:
-        break
-        
+        if playerNum < 2 or playerNum > 4:
+            print("Invalid number of players.")
+        else:
+            break
+    except:
+        print("\nInvalid input.\n")
 game = SplendorGame(playerNum)
 while not game.hasEnded():
     game.processTurn()
